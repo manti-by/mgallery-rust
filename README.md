@@ -1,4 +1,4 @@
-Rust galleryscanner
+Rust gallery scanner
 ====
 
 
