@@ -1,9 +1,10 @@
 [package]
 name = "mlibrary"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+rusqlite = "0.26.0"
 image = "0.23.14"
 img_hash = "3.2.0"
