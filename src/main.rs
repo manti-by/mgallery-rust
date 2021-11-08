@@ -1,45 +1,55 @@
-mod db;
+mod database;
+mod error;
+mod services;
 
-use image;
-use img_hash;
+use std::env;
+use std::fs::read_dir;
+use std::io;
+use std::path::PathBuf;
 
-use rusqlite::Connection;
-use std::path::Path;
+use services::process_image;
 
-use db::{create_gallery, create_image};
-use image::GenericImageView;
-use img_hash::HasherConfig;
+fn process_dir(data_path: &PathBuf, db_path: &PathBuf) -> io::Result<()> {
+    for resource in read_dir(data_path).unwrap() {
+        let entry = resource.unwrap();
+        let file_path = entry.path();
 
-const DB_PATH: &str = "/mnt/c/www/mlibrary/db.sqlite";
-const IMG_PATH: &str = "/mnt/c/www/mlibrary/data/test.jpg";
+        if file_path.is_dir() {
+            process_dir(&file_path, db_path)?;
+        } else {
+            let file_name_buf = entry.file_name();
+            let file_name = file_name_buf.to_str().unwrap();
+            if !file_name.starts_with(".")
+                && (file_name.ends_with(".jpg")
+                    || file_name.ends_with(".jpeg")
+                    || file_name.ends_with(".png")
+                    || file_name.ends_with(".gif"))
+            {
+                let _ = match process_image(db_path.to_str().unwrap(), &file_path) {
+                    Ok(n) => n,
+                    Err(e) => {
+                        println!("Error processing image {} [{}]", file_path.display(), e);
+                        continue;
+                    }
+                };
+            }
+        }
+    }
+    Ok(())
+}
 
-fn main() -> Result<(), rusqlite::Error> {
-    let mut connection = Connection::open(DB_PATH)?;
+fn main() -> Result<(), io::Error> {
+    let current_path = match env::current_dir() {
+        Ok(v) => v,
+        Err(e) => panic!("Error: {}", e),
+    };
 
-    let gallery_id: i64 = create_gallery(&mut connection, IMG_PATH, "data").unwrap();
-    println!("Gallery ID: {}", gallery_id);
+    let mut db_path = current_path.clone().to_path_buf();
+    let mut data_path = current_path.parent().unwrap().to_path_buf();
 
-    let image = image::open(IMG_PATH).unwrap();
-    let name: &str = Path::new(IMG_PATH).file_name().unwrap().to_str().unwrap();
-    let hash: &str = &HasherConfig::new()
-        .to_hasher()
-        .hash_image(&image)
-        .to_base64();
-    let size: u64 = std::fs::metadata(IMG_PATH).unwrap().len();
-    let (width, height) = image.dimensions();
-
-    let image_id: i64 = create_image(
-        &mut connection,
-        gallery_id,
-        IMG_PATH,
-        name,
-        hash,
-        size,
-        width,
-        height,
-    )
-    .unwrap();
-    println!("Image ID: {}", image_id);
+    data_path.push("data");
+    db_path.push("db.sqlite");
+    process_dir(&data_path, &db_path)?;
 
     Ok(())
 }
