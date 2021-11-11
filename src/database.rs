@@ -1,18 +1,19 @@
 use rusqlite::{params, Connection, Result};
 
-pub fn create_image(
-    db_path: &str,
-    path: &str,
-    name: &str,
-    phash: &str,
-    size: u64,
-    width: u32,
-    height: u32,
-) -> Result<i64, rusqlite::Error> {
+pub struct DBImage<'a> {
+    pub path: &'a str,
+    pub name: &'a str,
+    pub phash: &'a str,
+    pub size: u64,
+    pub width: u32,
+    pub height: u32,
+}
+
+pub fn create_image(db_path: &str, image: &DBImage) -> Result<i64, rusqlite::Error> {
     let connection = Connection::open(db_path)?;
     connection.execute(
         "INSERT INTO image (path, name, phash, size, width, height) VALUES (?1, ?2, ?3, ?4, ?5, ?6);",
-        params![path, name, phash, size, width, height],
+        params![image.path, image.name, image.phash, image.size, image.width, image.height],
     )?;
 
     let image_id: i64 = connection.last_insert_rowid();
