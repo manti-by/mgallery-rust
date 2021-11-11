@@ -12,8 +12,25 @@ Image deduplicate script.
 
 Author: Alexander Chaika <manti.by@gmail.com>
 
-Source link: https://github.com/manti-by/mlibrary/
+Source link: https://github.com/manti-by/mgallery-rust/
+
+Python mirror: https://github.com/manti-by/mgallery-py/
 
 Requirements:
 
     RustC 1.55.0, Image 0.23.14, ImageHash 3.2
+
+
+Script setup
+----
+
+1. Create log dir and db path
+
+        $ make setup
+
+2. Scan gallery
+
+        $ make scan
+
+
+NOTE: For additional commands check Makefile
