@@ -1,4 +1,5 @@
 use rusqlite::{params, Connection, Result};
+use crate::utils::Settings;
 
 pub struct DBImage<'a> {
     pub path: &'a str,
@@ -9,8 +10,8 @@ pub struct DBImage<'a> {
     pub height: u32,
 }
 
-pub fn create_image(db_path: &str, image: &DBImage) -> Result<i64, rusqlite::Error> {
-    let connection = Connection::open(db_path)?;
+pub fn create_image(image: &DBImage, settings: &Settings) -> Result<i64, rusqlite::Error> {
+    let connection = Connection::open(&settings.db_path)?;
     connection.execute(
         "INSERT INTO image (path, name, phash, size, width, height) VALUES (?1, ?2, ?3, ?4, ?5, ?6);",
         params![image.path, image.name, image.phash, image.size, image.width, image.height],

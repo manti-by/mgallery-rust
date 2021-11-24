@@ -16,7 +16,7 @@ fn get_arg(args: &Vec<String>, name: &str, default: &str) -> Result<PathBuf, io:
             let mut path = current_path.clone().to_path_buf();
             path.push(&default);
             path
-        },
+        }
     };
     Ok(value)
 }

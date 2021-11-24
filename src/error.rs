@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use image;
 use rusqlite;
+use std;
 
 #[derive(Debug)]
 pub enum ProcessImageError {
