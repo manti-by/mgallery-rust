@@ -35,6 +35,6 @@ release:
 	cargo build --release
 
 scan:
-	./target/release/mgallery
+	./target/release/mgallery --data_path $$CURRENT_DIR/../data/ --db_path $$CURRENT_DIR/db.sqlite
 
 reload: clean setup release scan
