@@ -1,5 +1,5 @@
+use crate::lib::settings::Settings;
 use rusqlite::{params, Connection, Result};
-use crate::utils::Settings;
 
 pub struct DBImage<'a> {
     pub path: &'a str,

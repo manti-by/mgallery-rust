@@ -1,12 +1,9 @@
-mod database;
-mod error;
-mod services;
-mod utils;
+mod lib;
 
 use std::io;
 
-use services::process_dir;
-use utils::get_settings;
+use lib::files::process_dir;
+use lib::settings::get_settings;
 
 fn main() -> Result<(), io::Error> {
     let settings = get_settings()?;
