@@ -1,7 +1,9 @@
-use crate::lib::settings::Settings;
+use crate::lib::settings::SETTINGS;
 use rusqlite::{params, Connection, Result};
 
-pub struct DBImage<'a> {
+/// Image data structure for database operations.
+pub struct ImageModel<'a> {
+    pub id: i64,
     pub path: &'a str,
     pub name: &'a str,
     pub phash: &'a str,
@@ -10,15 +12,22 @@ pub struct DBImage<'a> {
     pub height: u32,
 }
 
-pub fn create_image(image: &DBImage, settings: &Settings) -> Result<i64, rusqlite::Error> {
-    let connection = Connection::open(&settings.db_path)?;
-    connection.execute(
-        "INSERT INTO image (path, name, phash, size, width, height) VALUES (?1, ?2, ?3, ?4, ?5, ?6);",
-        params![image.path, image.name, image.phash, image.size, image.width, image.height],
-    )?;
+impl ImageModel<'_> {
+    /// Save current image data to the database.
+    ///
+    /// ## Errors:
+    /// * `rusqlite::Error` error if database hasn't been setup correctly.
+    ///
+    pub fn create(&mut self) -> Result<i64, rusqlite::Error> {
+        let connection = Connection::open(&SETTINGS.db_path)?;
+        connection.execute(
+            "INSERT INTO image (path, name, phash, size, width, height) VALUES (?1, ?2, ?3, ?4, ?5, ?6);",
+            params![self.path, self.name, self.phash, self.size, self.width, self.height],
+        )?;
 
-    let image_id: i64 = connection.last_insert_rowid();
-    drop(connection);
+        self.id = connection.last_insert_rowid();
+        drop(connection);
 
-    Ok(image_id)
+        Ok(self.id)
+    }
 }

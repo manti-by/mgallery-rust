@@ -1,6 +1,7 @@
 .idea/
 target/
 logs/
+data/
 
 db.sqlite
 db.sqlite-journal
